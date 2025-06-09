@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Solicitar Documento com Matrícula</title>
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <style>
+    :root {
+      --bg: #121212;
+      --text: #f0f0f0;
+      --primary: #1f1f1f;
+      --accent: #e63946;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      min-height: 100vh;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-bottom: 20px;
+      color: #ccc;
+    }
+
+    input {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      background-color: var(--primary);
+      color: var(--text);
+      width: 250px;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: var(--accent);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #d62839;
+    }
+  </style>
+</head>
+<body>
+  <h2>Solicitar Documento</h2>
+  <p>A matrícula fictícia já está preenchida para teste.</p>
+  <input type="text" id="matricula" value="20259999" />
+  <br />
+  <button onclick="gerarPDF()">Gerar PDF</button>
+
+  <script>
+    async function gerarPDF() {
+      const matricula = document.getElementById('matricula').value.trim();
+      if (!matricula) {
+        alert("Por favor, insira a matrícula.");
+        return;
+      }
+
+      const { PDFDocument, rgb, degrees } = PDFLib;
+      const pdfDoc = await PDFDocument.create();
+      const page = pdfDoc.addPage([595, 842]); // A4
+
+      const { width, height } = page.getSize();
+
+      // Conteúdo principal
+      page.drawText("Este é um documento gerado para o usuário com a matrícula:", {
+        x: 50,
+        y: height - 100,
+        size: 14,
+      });
+
+      page.drawText(`MATRÍCULA: ${matricula}`, {
+        x: 50,
+        y: height - 120,
+        size: 16,
+        color: rgb(0, 0.4, 1),
+      });
+
+      // Marca d'água
+      page.drawText(`Matrícula: ${matricula}`, {
+        x: width / 4,
+        y: height / 2,
+        size: 40,
+        opacity: 0.3,
+        rotate: degrees(45),
+        color: rgb(1, 0, 0),
+      });
+
+      const pdfBytes = await pdfDoc.save();
+
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `documento_matricula_${matricula}.pdf`;
+      link.click();
+    }
+  </script>
+</body>
+</html>
